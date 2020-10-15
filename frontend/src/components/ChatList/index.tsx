@@ -115,11 +115,7 @@ const ChatList: React.FC = () => {
           return (
             <S.ChatMessage ref={messagesEndRef} key={index}>
               <span>{name} : </span>
-              <img
-                src={body}
-                style={{ maxHeight: "300px", maxWidth: "560px" }}
-                alt="chatImage"
-              />
+              <img src={body} alt="chatImage" />
             </S.ChatMessage>
           );
         }

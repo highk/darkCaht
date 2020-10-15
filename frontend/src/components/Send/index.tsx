@@ -8,6 +8,7 @@ import React, {
 } from "react";
 import * as S from "./style";
 import { SocketContext } from "../Socket/socket";
+import Giphy from "./Giphy";
 
 type State = {
   message: string;
@@ -15,6 +16,7 @@ type State = {
   name: string;
   connected: boolean;
   isCommandView: boolean;
+  isGiphyView: boolean;
 };
 
 type Action =
@@ -30,6 +32,7 @@ const initialState = {
   name: "익명",
   connected: false,
   isCommandView: false,
+  isGiphyView: false,
 };
 
 const reducer = (state: State, action: Action) => {
@@ -38,7 +41,12 @@ const reducer = (state: State, action: Action) => {
       return { ...state, ...action.payload };
 
     case "CLEAR_MESSAGE_INPUT":
-      return { ...state, message: "", isCommandView: false };
+      return {
+        ...state,
+        message: "",
+        isCommandView: false,
+        isGiphyView: false,
+      };
 
     case "SOCKET_CONNECT":
       return { ...state, connected: true };
@@ -55,20 +63,27 @@ const Send: React.FC = () => {
   const socket = useContext<SocketIOClient.Socket>(SocketContext);
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  const { message, subMessage, name, connected, isCommandView } = state;
+  const {
+    message,
+    subMessage,
+    name,
+    connected,
+    isCommandView,
+    isGiphyView,
+  } = state;
 
   const [disable, setDisable] = useState(true);
   const messageInputRef = useRef() as React.MutableRefObject<HTMLInputElement>;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const eTarget = e.currentTarget;
-
     if (eTarget.name === "message") {
       dispatch({
         type: "CHANGE_INPUT",
         payload: {
           [eTarget.name]: eTarget.value,
           isCommandView: eTarget.value[0] === "/",
+          isGiphyView: eTarget.value.slice(0, 4) === "/gif",
         },
       });
     } else {
@@ -77,6 +92,22 @@ const Send: React.FC = () => {
         payload: { [eTarget.name]: eTarget.value },
       });
     }
+  };
+
+  const handleGif = (url: string) => {
+    if (disable) return;
+    if (name === "") {
+      alert("Name is Empty!");
+      return;
+    }
+
+    const data: any = { name, body: "/img " + url, type: "image" };
+
+    socket.emit("message", data);
+
+    dispatch({
+      type: "CLEAR_MESSAGE_INPUT",
+    });
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -141,6 +172,7 @@ const Send: React.FC = () => {
 
   return (
     <S.SendWrapper>
+      {isGiphyView && <span>asdasd</span>}
       {isCommandView && (
         <S.CommandLines
           offY={
@@ -152,6 +184,7 @@ const Send: React.FC = () => {
           <div>/img [link]</div>
           <div>/time</div>
           <div>/clear</div>
+          <div>/gif</div>
         </S.CommandLines>
       )}
 
@@ -185,6 +218,8 @@ const Send: React.FC = () => {
           autoComplete="off"
         />
       </S.SubWrapper>
+
+      {isGiphyView && <Giphy handleGif={handleGif} input={message} />}
     </S.SendWrapper>
   );
 };

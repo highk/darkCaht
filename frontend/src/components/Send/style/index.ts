@@ -69,3 +69,8 @@ export const CommandLines = styled.div<PositionProps>`
     height: 30px;
   }
 `;
+
+export const GiphyWrapper = styled.div`
+  max-height: 600px;
+  overflow-y: scroll;
+`

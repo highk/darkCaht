@@ -1,6 +1,15 @@
 import React, { createContext, Dispatch, useState } from "react";
 import { ThemeProvider } from "styled-components";
 
+declare module "styled-components" {
+  export interface DefaultTheme {
+    background: string;
+    activeButton: string;
+    disabledButton: string;
+    message: string;
+  }
+}
+
 export const themes: any = {
   white: {
     background: "#fff",

@@ -14,7 +14,7 @@ const Themes: React.FC = () => {
 
   return (
     <S.ThemeWrapper>
-      <h1>Themes</h1>
+      <h3>Themes</h3>
       <div>
         {colors.map((color, index) => (
           <S.Colors

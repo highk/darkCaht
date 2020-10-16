@@ -17,6 +17,7 @@ type State = {
   connected: boolean;
   isCommandView: boolean;
   isGiphyView: boolean;
+  isDisable: boolean;
 };
 
 type Action =
@@ -24,6 +25,7 @@ type Action =
   | { type: "CLEAR_MESSAGE_INPUT" }
   | { type: "SOCKET_CONNECT" }
   | { type: "SOCKET_DISCONNECT" }
+  | { type: "CHANGE_DISABLE"; payload: boolean }
   | { type: "COMMANDVIEW_HIDE" };
 
 const initialState = {
@@ -33,36 +35,35 @@ const initialState = {
   connected: false,
   isCommandView: false,
   isGiphyView: false,
+  isDisable: true,
 };
 
 const reducer = (state: State, action: Action) => {
   switch (action.type) {
     case "CHANGE_INPUT":
       return { ...state, ...action.payload };
-
     case "CLEAR_MESSAGE_INPUT":
       return {
         ...state,
         message: "",
+        keyword: "",
         isCommandView: false,
         isGiphyView: false,
       };
-
     case "SOCKET_CONNECT":
       return { ...state, connected: true };
-
     case "SOCKET_DISCONNECT":
       return { ...state, connected: false };
-
     case "COMMANDVIEW_HIDE":
       return { ...state, isCommandView: false };
+    case "CHANGE_DISABLE":
+      return { ...state, isDisable: action.payload };
   }
 };
 
 const Send: React.FC = () => {
   const socket = useContext<SocketIOClient.Socket>(SocketContext);
   const [state, dispatch] = useReducer(reducer, initialState);
-
   const {
     message,
     subMessage,
@@ -70,9 +71,9 @@ const Send: React.FC = () => {
     connected,
     isCommandView,
     isGiphyView,
+    isDisable,
   } = state;
 
-  const [disable, setDisable] = useState(true);
   const messageInputRef = useRef() as React.MutableRefObject<HTMLInputElement>;
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,7 +83,7 @@ const Send: React.FC = () => {
         type: "CHANGE_INPUT",
         payload: {
           [eTarget.name]: eTarget.value,
-          isCommandView: eTarget.value[0] === "/",
+          isCommandView: eTarget.value[0] === "/" && !isGiphyView,
           isGiphyView: eTarget.value.slice(0, 4) === "/gif",
         },
       });
@@ -95,7 +96,8 @@ const Send: React.FC = () => {
   };
 
   const handleGif = (url: string) => {
-    if (disable) return;
+    console.log(url);
+    if (isDisable) return;
     if (name === "") {
       alert("Name is Empty!");
       return;
@@ -112,7 +114,7 @@ const Send: React.FC = () => {
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (disable) return;
+    if (isDisable) return;
     if (name === "") {
       alert("Name is Empty!");
       return;
@@ -167,12 +169,21 @@ const Send: React.FC = () => {
   }, [socket, socketMessage, disConnectSocket]);
 
   useEffect(() => {
-    setDisable(!connected || message.length === 0);
+    dispatch({
+      type: "CHANGE_DISABLE",
+      payload: !connected || message.length === 0,
+    });
   }, [connected, message.length]);
+
+  useEffect(() => {
+    if (isGiphyView)
+      dispatch({
+        type: "COMMANDVIEW_HIDE",
+      });
+  }, [isGiphyView]);
 
   return (
     <S.SendWrapper>
-      {isGiphyView && <span>asdasd</span>}
       {isCommandView && (
         <S.CommandLines
           offY={
@@ -188,6 +199,7 @@ const Send: React.FC = () => {
         </S.CommandLines>
       )}
 
+      {isGiphyView && <Giphy handleGif={handleGif} />}
       <form onSubmit={handleSubmit}>
         <S.SendInput
           name="message"
@@ -199,10 +211,11 @@ const Send: React.FC = () => {
           ref={messageInputRef}
           onBlur={() => dispatch({ type: "COMMANDVIEW_HIDE" })}
         />
-        <S.SendButton type="submit" disabled={disable}>
+        <S.SendButton type="submit" disabled={isDisable}>
           Send
         </S.SendButton>
       </form>
+
       <S.SubWrapper>
         <S.SendSubInput
           name="name"
@@ -218,8 +231,6 @@ const Send: React.FC = () => {
           autoComplete="off"
         />
       </S.SubWrapper>
-
-      {isGiphyView && <Giphy handleGif={handleGif} input={message} />}
     </S.SendWrapper>
   );
 };

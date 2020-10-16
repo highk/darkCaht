@@ -1,50 +1,43 @@
-import React, { useEffect, useCallback, useState } from "react";
-import { Grid } from "@giphy/react-components";
+import React, { forwardRef, useContext } from "react";
+import {
+  Grid, // our UI Component to display the results
+  SearchBar, // the search bar the user will type into
+  SearchContext, // the context that wraps and connects our components
+  SearchContextManager, // the context manager, includes the Context.Provider
+  SuggestionBar, // an optional UI component that displays trending searches and channel / username results
+} from "@giphy/react-components";
 import { GiphyFetch } from "@giphy/js-fetch-api";
 import * as S from "./style";
 
-const gf = new GiphyFetch("L8MHTdBKWtWtorIHUsOPrigjpQ96nF6P");
-const search = (keyword: string) => (offset: number) =>
-  gf.search(keyword, {
-    sort: "relevant",
-    lang: "es",
-    limit: 10,
-    offset,
-  });
+const { REACT_APP_NOT_GIPHY_API_KEY }: any = process.env;
 
-const trd = (offset: number) => gf.trending({ offset, limit: 10 });
+const SearchExperience = forwardRef(({ handleGif }: any) => (
+  <S.GiphyWrapper>
+    <SearchContextManager apiKey={REACT_APP_NOT_GIPHY_API_KEY}>
+      <SearchBar placeholder="" clear />
+      <Components handleGif={handleGif} />
+    </SearchContextManager>
+  </S.GiphyWrapper>
+));
 
-const Giphy: React.FC<{ input: string; handleGif: Function }> = ({
-  input,
-  handleGif,
-}) => {
-  const keyword = input.slice(5);
-
-  const [state, setState] = useState<"trd" | "search">("trd");
-
-  useEffect(() => {
-    setState(keyword === "" ? "trd" : "search");
-  }, [keyword]);
-
-  const onGifClick = (gif: any, e: any) => {
-    handleGif(gif.images.downsized.url);
-    e.preventDefault();
-  };
-
-  const Grids: React.FC = () => (
-    <Grid
-      onGifClick={onGifClick}
-      width={window.innerWidth < 800 ? window.innerWidth - 50 : 800}
-      columns={2}
-      fetchGifs={state === "trd" ? trd : search(keyword)}
-    />
-  );
-
+const Components = ({ handleGif }: any) => {
+  const { fetchGifs, searchKey } = useContext(SearchContext);
   return (
-    <S.GiphyWrapper>
-      <Grids />
-    </S.GiphyWrapper>
+    <>
+      {/* <SuggestionBar /> */}
+      <Grid
+        key={searchKey}
+        columns={3}
+        width={window.innerWidth > 800 ? 780 : window.innerWidth - 40}
+        fetchGifs={fetchGifs}
+        onGifClick={(gif, e) => {
+          e.preventDefault();
+          console.log(gif);
+          handleGif(gif.images.downsized_medium.url);
+        }}
+      />
+    </>
   );
 };
 
-export default Giphy;
+export default SearchExperience;

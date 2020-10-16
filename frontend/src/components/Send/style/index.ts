@@ -73,4 +73,5 @@ export const CommandLines = styled.div<PositionProps>`
 export const GiphyWrapper = styled.div`
   max-height: 600px;
   overflow-y: scroll;
+  border: 1px solid ${props => props.theme.message};
 `

@@ -24,7 +24,7 @@ const io = socketIo(server);
 io.on("connection", function (socket: SocketIO.Socket) {
   console.log("CONNECT: " + socket.id);
   socket.emit("sysMessage", {body: "SOCKET_CONNECT", type: 'info'});
-  socket.broadcast.emit("sysMessage", "New User Join");
+  socket.broadcast.emit("sysMessage", {body: "New User Join", type: 'info'});
 
   socket.on("message", (data) => {
     if (data.type === "image") {

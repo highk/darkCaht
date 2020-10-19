@@ -12,9 +12,7 @@ const Layouts: React.FC = () => {
         <p>Anonymous darkest chat</p>
       </S.TopWrapper>
       <S.ChatWrapper>
-        <S.ChatBlock>
-          <ChatList />
-        </S.ChatBlock>
+        <ChatList />
       </S.ChatWrapper>
       <Send />
       <Colors />

@@ -9,3 +9,9 @@ export const ChatMessage = styled.div`
   }
   
 `;
+
+export const ChatBlock = styled.div`
+  padding: 10px 20px;
+  height: 400px;
+  width: inherit;
+`;

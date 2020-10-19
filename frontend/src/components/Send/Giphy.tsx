@@ -6,7 +6,6 @@ import {
   SearchContextManager, // the context manager, includes the Context.Provider
   SuggestionBar, // an optional UI component that displays trending searches and channel / username results
 } from "@giphy/react-components";
-import { GiphyFetch } from "@giphy/js-fetch-api";
 import * as S from "./style";
 
 const { REACT_APP_NOT_GIPHY_API_KEY }: any = process.env;
@@ -14,7 +13,7 @@ const { REACT_APP_NOT_GIPHY_API_KEY }: any = process.env;
 const SearchExperience = forwardRef(({ handleGif }: any) => (
   <S.GiphyWrapper>
     <SearchContextManager apiKey={REACT_APP_NOT_GIPHY_API_KEY}>
-      <SearchBar placeholder="" clear />
+      <SearchBar placeholder="search..." clear />
       <Components handleGif={handleGif} />
     </SearchContextManager>
   </S.GiphyWrapper>

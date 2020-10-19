@@ -80,7 +80,7 @@ const ChatList: React.FC = () => {
 
   const sysMessage = useCallback(
     (data: any) => {
-      setMessages(messages.concat({ name: "[SYSTEM] ", body: data }));
+      setMessages(messages.concat({ name: "[SYSTEM] ", ...data }));
       if (messagesEndRef && messagesEndRef.current)
         messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
     },
@@ -109,13 +109,25 @@ const ChatList: React.FC = () => {
   }, [socket, addMessage, sysMessage, commandMessage]);
 
   return (
-    <React.Fragment>
+    <S.ChatBlock>
       {messages.map(({ name, body, type }: ChatMessage, index: number) => {
         if (type === "image") {
           return (
             <S.ChatMessage ref={messagesEndRef} key={index}>
               <span>{name} : </span>
               <img src={body} alt="chatImage" />
+            </S.ChatMessage>
+          );
+        }
+
+        if (type === "time") {
+          return (
+            <S.ChatMessage ref={messagesEndRef} key={index}>
+              <span>{name} : </span>
+              <div
+                style={{ lineHeight: 1.0 }}
+                dangerouslySetInnerHTML={{ __html: body }}
+              />
             </S.ChatMessage>
           );
         }
@@ -127,7 +139,7 @@ const ChatList: React.FC = () => {
           </S.ChatMessage>
         );
       })}
-    </React.Fragment>
+    </S.ChatBlock>
   );
 };
 export default ChatList;

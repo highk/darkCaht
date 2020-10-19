@@ -140,7 +140,7 @@ const Send: React.FC = () => {
   };
 
   const socketMessage = useCallback((data) => {
-    switch (data) {
+    switch (data.body) {
       case "SOCKET_CONNECT":
         dispatch({
           type: "SOCKET_CONNECT",
@@ -203,7 +203,9 @@ const Send: React.FC = () => {
       <form onSubmit={handleSubmit}>
         <S.SendInput
           name="message"
-          placeholder={connected ? "대화를 입력..." : "연결 끊김..."}
+          placeholder={
+            connected ? "대화를 입력...(command='/')" : "연결 끊김..."
+          }
           onChange={handleChange}
           value={message}
           disabled={!connected}
